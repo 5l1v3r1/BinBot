@@ -22,14 +22,16 @@ import lib
 import gzip
 import yara
 import codecs
+import argparse
 import requests
+from sys import argv
 from time import sleep
 from base64 import b64decode
+from os import path, listdir
 from datetime import datetime
 from bs4 import BeautifulSoup
 from sys import path as syspath
 from configparser import ConfigParser
-from os import path, listdir
 
 # Author: Mili
 # No API key needed
@@ -320,8 +322,8 @@ def load_config():
         print("\n")
     return vars_dict
 
-# Main
-def main():
+# Main Function
+def main(args):
     lib.print_title("""
     _________________________________________
     [                                       ]
@@ -331,22 +333,29 @@ def main():
     [                                       ]
     [_______________________________________]
     """)
-    while True:
-        configchoice = lib.print_input("Load config file? [y]/[n]")
-        if configchoice.lower() not in ['y', 'n', 'yes', 'no']:
-            lib.print_error("Invalid Input.")
-            continue
-        elif configchoice.lower() in ['y', 'yes']:
-            vars_dict = load_config()
-            break
-        elif configchoice.lower() in ['no', 'n']:
-            vars_dict = manual_setup()
-            break
-    try:
-        Non_API_Search(vars_dict)
-    except KeyboardInterrupt:
-        lib.print_status(f"Operation cancelled...")
+    if len(argv) > 1:
+        pass
+    else: # if no args are passed, use CLI setup (maye later use like a --manual switch?)
+        while True:
+            configchoice = lib.print_input("Load config file? [y]/[n]")
+            if configchoice.lower() not in ['y', 'n', 'yes', 'no']:
+                lib.print_error("Invalid Input.")
+                continue
+            elif configchoice.lower() in ['y', 'yes']:
+                vars_dict = load_config()
+                break
+            elif configchoice.lower() in ['no', 'n']:
+                vars_dict = manual_setup()
+                break
+        try:
+            Non_API_Search(vars_dict)
+        except KeyboardInterrupt:
+            lib.print_status(f"Operation cancelled...")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    for x in lib.args_dict.keys():
+        parser.add_argument(x, help=lib.args_dict[x])
+    args = parser.parse_args()
+    main(args)
 
